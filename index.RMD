@@ -1,0 +1,347 @@
+---
+title: "Trabalho_D6"
+author: "Flavia Serafim"
+date: "20 de outubro de 2018"
+output:
+  ioslides_presentation: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Título: Sistema Nacional de Cultura - adesões pelos entes federados
+
+Autor: Flávia Gonzaga Serafim
+
+# Objeto
+
+_ Este trabalho contempla análise dos parâmetros que versam sobre a integração dos entes federados (estados, distrito federal e municípios) ao Sistema Nacional de Cultural (SNC). 
+- Esses parâmtros tratam da: 1) Situação quanto à adesão ao SNC; 2) Institucionalização de cinco componentes que definem um sistema de cultura local.
+- Os cinco componentes que definem um sistema de cultura local sÃo: criação, por meio de lei, de sistema de cultura; formalização de órgão gestor de cultura, estabelecimento de conselho de cultura, definição de formas de fomento do sistema de cultura e elaboração de plano local de cultural.
+
+# Objetivos principais e justificativas
+
+- Identificar o número de adesões por ano (2012 a 2018), de forma a reconhecer a estratégia mais efetiva de convencimento dos entes federados para que se integrem ao SNC;
+
+- Conhecer a quantidade de municípios, por estado e por região, que possuem todos os componentes do sistema local de cultura definidos, de modo a propor medidas para alcance das metas anuais e decenal de isntitucionalização desses sistemas locais de cultura.
+
+# Método
+
+- Foram utilizadas dados administrativos do Ministério da Cultura, os quais são compilados em duas planilhas de trabalho ("Datas"" e "Adesoes").
+- A planilha "Datas" completa a data de publicação em imprensa oficial da União, da integração do ente federado ao SNC e no compromisso desse em institucionalizar os cinco compoenente do sistema local de cultura.
+- A planilha "Adesao" contempla a situação quanto à integração do ente ao SNC e quanto à efetiva institucionalização de cada um dos componentes do sistema, por ente federado.
+- Os cálculos, as tabelas e os gráficos apresentados foram gerados de forma a responder aos objetivos prinicipais deste trabalho, com acréscimo de informações adicionais que podem interessar ao gestor federal.
+
+# Instalação dos pacotes
+
+```{r}
+lista.de.pacotes = c("tidyverse", "magrittr", "lubridate", "ggplot2", "dplyr", 
+                     "openxlsx", "readr", "readxl", "xlsx")
+novos.pacotes <- lista.de.pacotes[!(lista.de.pacotes %in%
+                                      installed.packages()[,"Package"])]
+if(length(novos.pacotes) > 0) {install.packages(novos.pacotes)}
+lapply(lista.de.pacotes, require, character.only=T)
+rm(lista.de.pacotes,novos.pacotes)
+gc()
+```
+
+## Base de dados "Datas"
+
+# Leitura da base de dados "Datas"
+
+```{r}
+datas <- read.xlsx("E:/D6/Dados_trabalho/Datas.xlsx", detectDates=T)
+```
+
+```{r}
+str(datas)
+```
+
+```{r}
+datas <- datas %>%
+  mutate(Data_adesao = as_date(Data_adesao))
+```
+
+```{r}
+str(datas)
+```
+
+```{r}
+View(datas)
+```
+
+# Quantidade de entes federados que aderiram ao SNC
+
+```{r}
+entes_adesao <- datas %>%
+  filter(!is.na(Aderiu_ao_SNC)) %>%
+  count(Aderiu_ao_SNC)
+```
+
+```{r}
+str(entes_adesao)
+```
+
+# Quantidade de municípios por estado que aderiram ao SNC
+
+```{r}
+Munic_Estado <- datas %>%
+  filter(!is.na(Aderiu_ao_SNC)) %>%
+  group_by(Estado) %>%
+  count(Estado)
+```
+
+```{r}
+head(Munic_Estado)
+```
+
+```{r}
+View(Munic_Estado)
+```
+
+# Total da população nos estados que aderiram ao SNC
+
+```{r}
+Pop_estado_aderiu <- datas %>%
+  filter(!is.na(Aderiu_ao_SNC)) %>%
+  select(Estado, Estado_Municipio, Pop_estimada_2017, Aderiu_ao_SNC) %>%
+  group_by(Estado) %>%
+  summarise(sum(Pop_estimada_2017))
+```
+
+```{r}
+head(Pop_estado_aderiu)
+```
+
+```{r}
+View(Pop_estado_aderiu)
+```
+
+# Quantidade de adesões por ano
+
+```{r}
+adesoes_ano <- datas %>%
+  filter(!is.na(Aderiu_ao_SNC)) %>%
+  filter(!is.na(Data_adesao)) %>%
+  select(Estado, Estado_Municipio, Data_adesao) %>%
+  mutate(ano_adesao = year(ymd(Data_adesao))) %>%
+  group_by(ano_adesao) %>%
+  summarise(quantidade_adesoes = n())
+```
+
+```{r}
+str(adesoes_ano)
+```
+
+```{r}
+View(adesoes_ano)
+```
+
+# Gráfico 1: número de adesões ao SNC por ano
+
+```{r}
+ggplot(adesoes_ano) +
+  geom_bar(aes(x = ano_adesao, y = quantidade_adesoes, color=quantidade_adesoes, fill=quantidade_adesoes), stat = "identity") +
+  labs(title="Adesões anuais ao SNC", x="ano da adesão", y="quantidade de adesões")
+```
+
+## base de dados "Adesao"
+
+# Leitura da base de dados "Adesao"
+
+```{r}
+adesao <- read_xlsx("E:/D6/Dados_trabalho/Adesao.xlsx")
+```
+
+```{r}
+str(adesao)
+```
+
+```{r}
+View(adesao)
+```
+
+# Quantidade de entes federados em relação à situação da adesão ao SNC
+
+```{r}
+situacao <- adesao %>%
+  group_by(Situação) %>%
+  count(Situação)
+```
+
+```{r}
+situacao
+```
+
+# Quantidade de entes federados com adesao publicada e que constituíram sistema local de cultura
+
+```{r}
+publicado <-  adesao %>%
+  select(UF, Ente, Situação, Possui_Sistema) %>%
+  filter(Situação == "Publicado no DOU" & Possui_Sistema == "Sim") %>%
+  count(Possui_Sistema)
+```
+
+```{r}
+publicado
+```
+
+# Quantidade de entes federados com adesão publicada e que possuem órgão gestor local
+
+```{r}
+org_gestor <- adesao %>%
+  select(UF, Ente, Situação, Possui_Órgão_Gestor) %>%
+  filter(Situação == "Publicado no DOU" & Possui_Órgão_Gestor == "Sim") %>%
+  count(Possui_Órgão_Gestor)
+```
+
+```{r}
+org_gestor
+```
+
+# Quantidade de entes federados com adesao publicada e que instituíram Conselho de política cultural
+
+```{r}
+conselho <- adesao %>%
+  select(UF, Ente, Situação, Possui_Conselho) %>%
+  filter(Situação == "Publicado no DOU" & Possui_Conselho == "Sim") %>%
+  count(Possui_Conselho)
+```
+
+```{r}
+conselho
+```
+
+# Quantidade de entes federados com adesão publicada e que definiram mecanismo para fomento da cultura
+
+```{r}
+mec_fomento <- adesao %>%
+  select(UF, Ente, Situação, Possui_Mecanismo_Fomento) %>%
+  filter(Situação == "Publicado no DOU" & Possui_Mecanismo_Fomento == "Sim") %>%
+  count(Possui_Mecanismo_Fomento)
+```
+
+```{r}
+mec_fomento
+```
+
+# Quantidade de entes federados com adesão publicada e que elaboraram plano de política cultural
+
+```{r}
+plano <- adesao %>%
+  select(UF, Ente, Situação, Possui_Plano) %>%
+  filter(Situação == "Publicado no DOU" & Possui_Plano == "Sim") %>%
+  count(Possui_Plano)
+```
+
+```{r}
+plano
+```
+
+# Quantidade de municípios por estado com adesão publicada e todos os componentes definidos
+
+```{r}
+adesao_compl <- adesao %>%
+  select(UF:Possui_Plano, -Codigo) %>%
+  mutate(Situação == "Publicado no DOU", Possui_Sistema == "Sim", Possui_Órgão_Gestor == "Sim", 
+         Possui_Conselho == "Sim", Possui_Mecanismo_Fomento == "Sim", Possui_Plano == "Sim") %>%
+  group_by(UF) %>%
+  count(UF)
+```
+
+```{r}
+glimpse(adesao_compl)
+```
+
+```{r}
+adesao_compl
+```
+
+# Gráfico 2: quantidade de municípios por estado com todos os componentes do sistema definidos
+
+```{r}
+ggplot(adesao_compl) +
+  geom_bar(aes(x= UF, y = n, color = n, fill = n), stat = "identity") +
+  labs(title="Municípios com todos os componentes do SNC", x="estados", y="número de municípios") +
+  coord_flip()
+```
+
+# Quantidade de municípios com todos os componentes definidos, em sua região
+
+```{r}
+adesao_regiao <- adesao_compl %>%
+  mutate(Regiao = 
+           ifelse(UF %in% c("AC", "RO", "RR", "AM", "PA", "TO", "AP"), "Norte", 
+                  ifelse(UF %in% c("MA", "PI", "CE", "RN", "PE", "PB", "SE", "AL", "BA"), "Nordeste",
+                         ifelse(UF %in% c("MT", "MS", "GO", "DF"), "Centro-Oeste", 
+                                ifelse(UF %in% c("SP", "RJ", "ES", "MG"), "Sudeste", "Sul")))))
+```
+
+```{r}
+adesao_regiao
+```
+
+# Gráfico 3: Número de municípios nos estados com todos os componentes definidos, em sua região
+
+```{r}
+ggplot(adesao_regiao) +
+  geom_bar(aes(x= UF, y = n, color=Regiao, fill=Regiao), stat = "identity") +
+  labs(title="Municípios com todos os componentes do sistema, por região", 
+       x = "estados por região", y = "número  de municípios") +
+  coord_flip()
+```
+
+# Gráfico 4: Número de municípios nos estado, por região, com todos os componentes definidos
+
+```{r}
+ggplot(adesao_regiao, aes(x = Regiao,  weights = n, stat = "identity")) +
+  geom_bar(aes(fill = UF), color="Black") +
+  geom_text(aes(x = Regiao, y = n, group = UF, label = UF),
+            position = position_stack(vjust = 0.5), size=2) +
+  guides(fill=FALSE) +
+  xlab("Região do Brasil") + ylab("Número de municípios") +
+  labs(title="Municípios com todos os componentes, por região")
+```
+
+# Percentual de municípios nos estados com todos os componentes do sistema de cultura local definidos
+
+```{r}
+adesao_regiao_agrupada <- adesao_regiao %>%
+  group_by(Regiao) %>%
+  summarise(contagem = sum(n))
+```
+
+```{r}
+adesao_regiao_agrupada
+```
+
+```{r}
+total_agrup <- adesao_regiao_agrupada %>%
+  select(Regiao, contagem) %>%
+  mutate(total_mun = c(467, 1794, 450, 1668, 1191))
+```
+
+```{r}
+total_agrup
+```
+
+```{r}
+total_mun_percent <- total_agrup %>%
+  select(Regiao, contagem, total_mun) %>%
+  group_by(Regiao) %>%
+  mutate(percentual = contagem / total_mun * 100)
+```
+
+```{r}
+total_mun_percent
+```
+
+# Conclusões
+
+- Conforme Gráfico 1, percebe-se que o ano de 2013 contemplou a maior quantidade de integração, pelos entes federados ao SNC. A estratégia de convencimento adotado para esse ano poderia ser analisada e replicada com adaptações, de forma a ampliar o número de adesões que decreceu nos anos seguintes.
+
+- Considerando os Gráficos 2 a 4, verifica-se que os estados dois estados da região sudeste (MG e SP) possuem o maior número de municípios com todos os componentes do sistema local de cultura definidos; e que cinco (Roraima, Rondônia, Amapá, Amazonas e Acre), dos sete estados que integram a norte, possuem a menor quantidade de municípios com todos os compoenentes do sistema local definidos.
+
+- Observando os dados da tabela "total_mun-percentual", conclui-se que a região nordeste é a que possui a maior quantidade de municípios com todos os componentes do sistema local definidos, enquanto que a região sudeste é a que possui o menor número de municípios com sistema de cultura integralmente estabelecido.
