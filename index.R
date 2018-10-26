@@ -89,47 +89,47 @@ View(adesao)
 # Quantidade de entes federados em relacao a situacao da adesao ao SNC
 
 situacao <- adesao %>%
-  group_by(Situação) %>% # agrupa por situacao da integracao ao SNC
-  count(Situação) # conta as observacoes pelo grupo
+  group_by(SituaÃÂ§ÃÂ£o) %>% # agrupa por situacao da integracao ao SNC
+  count(SituaÃÂ§ÃÂ£o) # conta as observacoes pelo grupo
 situacao
 
 # Quantidade de entes federados com adesao publicada e que constituiram sistema local de cultura
 
 publicado <-  adesao %>%
-  select(UF, Ente, Situação, Possui_Sistema) %>%
-  filter(Situação == "Publicado no DOU" & Possui_Sistema == "Sim") %>% # filtra observando as duas condicoes
+  select(UF, Ente, SituaÃÂ§ÃÂ£o, Possui_Sistema) %>%
+  filter(SituaÃÂ§ÃÂ£o == "Publicado no DOU" & Possui_Sistema == "Sim") %>% # filtra observando as duas condicoes
   count(Possui_Sistema) # conta considerando o filtro
 publicado
 
 # Quantidade de entes federados com adesao publicada e que possuem orgao gestor local
 
 org_gestor <- adesao %>%
-  select(UF, Ente, Situação, Possui_Órgão_Gestor) %>%
-  filter(Situação == "Publicado no DOU" & Possui_Órgão_Gestor == "Sim") %>% # filtra observando as duas condicoes
-  count(Possui_Órgão_Gestor) # conta considerando o filtro
+  select(UF, Ente, SituaÃÂ§ÃÂ£o, Possui_ÃÂrgÃÂ£o_Gestor) %>%
+  filter(SituaÃÂ§ÃÂ£o == "Publicado no DOU" & Possui_ÃÂrgÃÂ£o_Gestor == "Sim") %>% # filtra observando as duas condicoes
+  count(Possui_ÃÂrgÃÂ£o_Gestor) # conta considerando o filtro
 org_gestor
 
 # Quantidade de entes federados com adesao publicada e que instituiram Conselho de politica cultural
 
 conselho <- adesao %>%
-  select(UF, Ente, Situação, Possui_Conselho) %>%
-  filter(Situação == "Publicado no DOU" & Possui_Conselho == "Sim") %>% # filtra observando as duas condicoes
+  select(UF, Ente, SituaÃÂ§ÃÂ£o, Possui_Conselho) %>%
+  filter(SituaÃÂ§ÃÂ£o == "Publicado no DOU" & Possui_Conselho == "Sim") %>% # filtra observando as duas condicoes
   count(Possui_Conselho) # conta considerando o filtro
 conselho
 
 # Quantidade de entes federados com adesao publicada e que definiram mecanismo para fomento da cultura
 
 mec_fomento <- adesao %>%
-  select(UF, Ente, Situação, Possui_Mecanismo_Fomento) %>%
-  filter(Situação == "Publicado no DOU" & Possui_Mecanismo_Fomento == "Sim") %>% # filtra observando as duas condicoes
+  select(UF, Ente, SituaÃÂ§ÃÂ£o, Possui_Mecanismo_Fomento) %>%
+  filter(SituaÃÂ§ÃÂ£o == "Publicado no DOU" & Possui_Mecanismo_Fomento == "Sim") %>% # filtra observando as duas condicoes
   count(Possui_Mecanismo_Fomento) # conta considerando o filtro
 mec_fomento
 
 # Quantidade de entes federados com ades?o publicada e que elaboraram plano de politica cultural
 
 plano <- adesao %>%
-  select(UF, Ente, Situação, Possui_Plano) %>%
-  filter(Situação == "Publicado no DOU" & Possui_Plano == "Sim") %>% # filtra observando as duas condicoes
+  select(UF, Ente, SituaÃÂ§ÃÂ£o, Possui_Plano) %>%
+  filter(SituaÃÂ§ÃÂ£o == "Publicado no DOU" & Possui_Plano == "Sim") %>% # filtra observando as duas condicoes
   count(Possui_Plano) # conta considerando o filtro
 plano
 
@@ -137,7 +137,7 @@ plano
 
 adesao_compl <- adesao %>%
   select(UF:Possui_Plano, -Codigo) %>%
-  mutate(Situação == "Publicado no DOU", Possui_Sistema == "Sim", Possui_Órgão_Gestor == "Sim", 
+  mutate(SituaÃÂ§ÃÂ£o == "Publicado no DOU", Possui_Sistema == "Sim", Possui_ÃÂrgÃÂ£o_Gestor == "Sim", 
          Possui_Conselho == "Sim", Possui_Mecanismo_Fomento == "Sim", Possui_Plano == "Sim") %>% # seleciona os municipios com todos os componentes
   group_by(UF) %>% # agrupa por estado
   count(UF) # conta municipios pelo grupo

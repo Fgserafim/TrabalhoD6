@@ -1,35 +1,33 @@
 ---
 title: "Trabalho_D6"
-author: "Flavia Serafim"
-date: "20 de outubro de 2018"
+
+date: "25 de outubro de 2018"
 output:
   ioslides_presentation: default
   html_document: default
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ## Titulo: Sistema Nacional de Cultura - adesoes pelos entes federados
 
-Autor: Flavia Gonzaga Serafim
+Autora: Flavia Gonzaga Serafim
 
 # Objeto
-
 _ Este trabalho contempla analise dos parametros que versam sobre a integracao dos entes federados (estados, distrito federal e municipios) ao Sistema Nacional de Cultural (SNC). 
 - Esses parametros tratam da: 1) Situacao quanto a adesao ao SNC; 2) Institucionalizacao de cinco componentes que definem um sistema de cultura local.
 - Os cinco componentes que definem um sistema de cultura local sao: criacao, por meio de lei, de sistema de cultura; formalizacao de orgao gestor de cultura, estabelecimento de conselho de cultura, definicao de formas de fomento do sistema de cultura e elaboracao de plano local de cultural.
 
 # Objetivos principais e justificativas
-
 - Identificar o numero de adesoes por ano (2012 a 2018), de forma a reconhecer a estrategia mais efetiva de convencimento dos entes federados para que se integrem ao SNC;
 
 - Conhecer a quantidade de municipios, por estado e por regiao, que possuem todos os componentes do sistema local de cultura definidos, de modo a propor medidas para alcance das metas anuais e decenal de isntitucionalizacao desses sistemas locais de cultura.
 
 # Metodo
 
-- Foram utilizadas dados administrativos do Ministerio da Cultura, os quais sao compilados em duas planilhas de trabalho ("Datas"" e "Adesoes").
+- Foram utilizadas dados administrativos do Ministerio da Cultura, os quais sao compilados em duas planilhas de trabalho ("Datas" e "Adesoes").
 - A planilha "Datas" completa a data de publicacao em imprensa oficial da Uniao, da integracao do ente federado ao SNC e no compromisso desse em institucionalizar os cinco compoenente do sistema local de cultura.
 - A planilha "Adesao" contempla a situacao quanto a integracao do ente ao SNC e quanto a efetiva institucionalizacao de cada um dos componentes do sistema, por ente federado.
 - Os calculos, as tabelas e os graficos apresentados foram gerados de forma a responder aos objetivos prinicipais deste trabalho, com acrescimo de informacoes adicionais que podem interessar ao gestor federal.
@@ -61,7 +59,7 @@ str(datas)
 
 ```{r}
 datas <- datas %>%
-  mutate(Data_adesao = as_date(Data_adesao))
+  mutate(Data_adesao=as_date(Data_adesao))
 ```
 
 ```{r}
@@ -167,8 +165,8 @@ View(adesao)
 
 ```{r}
 situacao <- adesao %>%
-  group_by(Situação) %>%
-  count(Situação)
+  group_by(Situacao) %>%
+  count(Situacao)
 ```
 
 ```{r}
@@ -179,8 +177,8 @@ situacao
 
 ```{r}
 publicado <-  adesao %>%
-  select(UF, Ente, Situação, Possui_Sistema) %>%
-  filter(Situação == "Publicado no DOU" & Possui_Sistema == "Sim") %>%
+  select(UF, Ente, Situacao, Possui_Sistema) %>%
+  filter(Situacao == "Publicado no DOU" & Possui_Sistema == "Sim") %>%
   count(Possui_Sistema)
 ```
 
@@ -192,9 +190,9 @@ publicado
 
 ```{r}
 org_gestor <- adesao %>%
-  select(UF, Ente, Situação, Possui_Órgão_Gestor) %>%
-  filter(Situação == "Publicado no DOU" & Possui_Órgão_Gestor == "Sim") %>%
-  count(Possui_Órgão_Gestor)
+  select(UF, Ente, Situacao, Possui_Orgao_Gestor) %>%
+  filter(Situacao == "Publicado no DOU" & Possui_Orgao_Gestor == "Sim") %>%
+  count(Possui_Orgao_Gestor)
 ```
 
 ```{r}
@@ -205,8 +203,8 @@ org_gestor
 
 ```{r}
 conselho <- adesao %>%
-  select(UF, Ente, Situação, Possui_Conselho) %>%
-  filter(Situação == "Publicado no DOU" & Possui_Conselho == "Sim") %>%
+  select(UF, Ente, Situacao, Possui_Conselho) %>%
+  filter(Situacao == "Publicado no DOU" & Possui_Conselho == "Sim") %>%
   count(Possui_Conselho)
 ```
 
@@ -218,8 +216,8 @@ conselho
 
 ```{r}
 mec_fomento <- adesao %>%
-  select(UF, Ente, Situação, Possui_Mecanismo_Fomento) %>%
-  filter(Situação == "Publicado no DOU" & Possui_Mecanismo_Fomento == "Sim") %>%
+  select(UF, Ente, Situacao, Possui_Mecanismo_Fomento) %>%
+  filter(Situacao == "Publicado no DOU" & Possui_Mecanismo_Fomento == "Sim") %>%
   count(Possui_Mecanismo_Fomento)
 ```
 
@@ -231,8 +229,8 @@ mec_fomento
 
 ```{r}
 plano <- adesao %>%
-  select(UF, Ente, Situação, Possui_Plano) %>%
-  filter(Situação == "Publicado no DOU" & Possui_Plano == "Sim") %>%
+  select(UF, Ente, Situacao, Possui_Plano) %>%
+  filter(Situacao == "Publicado no DOU" & Possui_Plano == "Sim") %>%
   count(Possui_Plano)
 ```
 
@@ -245,7 +243,7 @@ plano
 ```{r}
 adesao_compl <- adesao %>%
   select(UF:Possui_Plano, -Codigo) %>%
-  mutate(Situação == "Publicado no DOU", Possui_Sistema == "Sim", Possui_Órgão_Gestor == "Sim", 
+  mutate(Situacao == "Publicado no DOU", Possui_Sistema == "Sim", Possui_Orgao_Gestor == "Sim", 
          Possui_Conselho == "Sim", Possui_Mecanismo_Fomento == "Sim", Possui_Plano == "Sim") %>%
   group_by(UF) %>%
   count(UF)
